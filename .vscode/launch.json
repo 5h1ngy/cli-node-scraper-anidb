@@ -1,21 +1,26 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "console": "integratedTerminal" ,
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/**"
+            "name": "Debug with Nodemon",
+            "runtimeExecutable": "nodemon",
+            "program": "${workspaceFolder}/src/index.ts",
+            "restart": true,
+            "args": [
+                "--require",
+                "module-alias/register",
+                "--require",
+                "dotenv/config"
             ],
-            "program": "${workspaceFolder}\\bin\\main.js",
+            "autoAttachChildProcesses": true,
             "env": {
                 "NODE_ENV": "development"
             },
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }
