@@ -5,14 +5,14 @@ import {
     DataType,
     ForeignKey,
 } from "sequelize-typescript";
-import { AnimeReferences } from "./AnimeReferences";
-import { TagReferences } from "./TagReferences";
+// import AnimeReferences from "./AnimeReferences";
+import TagReferences from "./TagReferences";
 
 @Table({
     tableName: "anime_tags",
     timestamps: true,
 })
-export class AnimeTags extends Model {
+export default class AnimeTags extends Model {
     @Column({
         primaryKey: true,
         type: DataType.UUID,
@@ -20,12 +20,12 @@ export class AnimeTags extends Model {
     })
     _uuid!: string;
 
-    @ForeignKey(() => AnimeReferences)
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
-    anime_references!: string;
+    // @ForeignKey(() => AnimeReferences)
+    // @Column({
+    //     type: DataType.STRING,
+    //     allowNull: false,
+    // })
+    // anime_references!: string;
 
     @ForeignKey(() => TagReferences)
     @Column({

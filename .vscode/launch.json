@@ -2,25 +2,79 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug con ts-node-dev",
             "type": "node",
             "request": "launch",
-            "name": "Debug with Nodemon",
-            "runtimeExecutable": "nodemon",
-            "program": "${workspaceFolder}/src/index.ts",
-            "restart": true,
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/ts-node-dev",
             "args": [
-                "--require",
-                "module-alias/register",
-                "--require",
-                "dotenv/config"
+                "--respawn",
+                "--transpile-only",
+                "--notify=false",
+                "-r",
+                "tsconfig-paths/register",
+                "src/index.ts"
             ],
-            "autoAttachChildProcesses": true,
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "restart": true,
+            "sourceMaps": true,
             "env": {
                 "NODE_ENV": "development"
-            },
-            "cwd": "${workspaceFolder}",
+            }
+        },
+        {
+            "name": "Debug con ts-node",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/ts-node",
+            "args": [
+                "-r",
+                "tsconfig-paths/register",
+                "src/index.ts"
+            ],
+            "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "sourceMaps": true,
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "name": "Debug con nodemon",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/nodemon",
+            "args": [
+                "--watch",
+                "src",
+                "--exec",
+                "ts-node",
+                "-r",
+                "tsconfig-paths/register",
+                "src/index.ts"
+            ],
+            "restart": true,
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ],
+            "sourceMaps": true,
+            "env": {
+                "NODE_ENV": "development"
+            }
         }
     ]
 }

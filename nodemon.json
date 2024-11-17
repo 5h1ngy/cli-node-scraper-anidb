@@ -1,7 +1,0 @@
-{
-    "watch": ["src"],
-    "ext": "ts",
-    "ignore": ["dist", "node_modules"],
-    "exec": "ts-node --transpile-only --require module-alias/register --require dotenv/config src/index.ts"
-  }
-  

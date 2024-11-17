@@ -1,8 +1,8 @@
 import path from 'path'
 import { Sequelize } from 'sequelize-typescript';
 
-import { Anime } from "@/models";
-import { AssetImages } from "@/models";
+import Anime from "@/models/Anime";
+import AssetImages from "@/models/AssetImages";
 // import { TagDetails } from "@/models";
 // import { TagReferences } from "@/models";
 // import { AnimeTags } from "@/models";
@@ -11,7 +11,7 @@ import { logWarn } from "@/shared/logger";
 const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: path.resolve(__dirname, '..', '..', 'data', process.env.DB_STORAGE || ''),
-    logging: process.env.DB_LOGGING === "true" ? logWarn : false || true,
+    logging: process.env.DB_LOGGING === "true" ? logWarn : false || false,
     models: [Anime, AssetImages, 
         // TagDetails, TagReferences, AnimeTags
     ],

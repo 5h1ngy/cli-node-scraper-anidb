@@ -1,11 +1,11 @@
 import { Table, Column, Model, DataType, HasOne } from "sequelize-typescript";
-import { Anime } from "./Anime";
+import Anime from "./Anime";
 
 @Table({
     tableName: "asset_images",
     timestamps: true,
 })
-export class AssetImages extends Model {
+export default class AssetImages extends Model {
     @Column({
         primaryKey: true,
         type: DataType.UUID,

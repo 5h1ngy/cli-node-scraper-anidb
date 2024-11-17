@@ -6,13 +6,13 @@ import {
     ForeignKey,
     BelongsTo,
 } from "sequelize-typescript";
-import { TagDetails } from "./TagDetails";
+import TagDetails from "./TagDetails";
 
 @Table({
     tableName: "tag_references",
     timestamps: true,
 })
-export class TagReferences extends Model {
+export default class TagReferences extends Model {
     @Column({
         primaryKey: true,
         type: DataType.UUID,

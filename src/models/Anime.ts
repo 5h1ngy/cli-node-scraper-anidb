@@ -7,13 +7,14 @@ import {
     BelongsTo,
     HasOne,
 } from "sequelize-typescript";
-import { AssetImages } from "./AssetImages";
+import AssetImages from "./AssetImages";
+
 
 @Table({
     tableName: "anime",
     timestamps: true,
 })
-export class Anime extends Model {
+export default class Anime extends Model {
     @Column({
         primaryKey: true,
         type: DataType.UUID,
