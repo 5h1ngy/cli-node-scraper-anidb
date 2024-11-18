@@ -16,7 +16,7 @@ const _URL = (page: number): string =>
  * @param page - Numero della pagina da analizzare.
  * @returns Una Promise che restituisce un array di numeri (ID degli anime).
  */
-export default function getAnimeId(page: number): Promise<number[]> {
+export default function getAnimeReferences(page: number): Promise<number[]> {
     return new Promise((resolve, reject) => setTimeout(async () => {
         const ids: number[] = [];
 

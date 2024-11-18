@@ -7,7 +7,7 @@
     "dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only --notify false -r tsconfig-paths/register src/index.ts",
     "build": "cross-env NODE_ENV=production tsc && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/index.js",
-    "clean": "rm -rfdv dist node_modules data"
+    "clean": "rm -rfdv dist node_modules data logs"
   },
   "dependencies": {
     "@faker-js/faker": "^9.2.0",

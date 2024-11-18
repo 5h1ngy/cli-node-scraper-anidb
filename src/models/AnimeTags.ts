@@ -1,12 +1,8 @@
-import {
-    Table,
-    Column,
-    Model,
-    DataType,
-    ForeignKey,
-} from "sequelize-typescript";
-// import AnimeReferences from "./AnimeReferences";
+import { Table, Column, Model, DataType, ForeignKey, BelongsToMany } from "sequelize-typescript";
+import AnimeReferences from "./AnimeReferences";
 import TagReferences from "./TagReferences";
+import AnimeDetails from "./AnimeDetails";
+import TagDetails from "./TagDetails";
 
 @Table({
     tableName: "anime_tags",
@@ -20,17 +16,19 @@ export default class AnimeTags extends Model {
     })
     _uuid!: string;
 
-    // @ForeignKey(() => AnimeReferences)
-    // @Column({
-    //     type: DataType.STRING,
-    //     allowNull: false,
-    // })
-    // anime_references!: string;
-
-    @ForeignKey(() => TagReferences)
+    @ForeignKey(() => AnimeDetails)
     @Column({
         type: DataType.STRING,
         allowNull: false,
+        unique: true,
     })
-    tag_references!: string;
+    animeDetail!: string;
+
+    @ForeignKey(() => TagDetails)
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+        unique: true,
+    })
+    tagDetail!: string;
 }

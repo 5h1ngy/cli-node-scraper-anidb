@@ -1,25 +1,35 @@
-import { Table, Column, Model, DataType, HasOne } from "sequelize-typescript";
-import Anime from "./Anime";
+import { Table, Model, Column, DataType, BelongsTo, ForeignKey } from "sequelize-typescript";
+import { HasOne } from "sequelize-typescript";
+
+import AnimeDetails from "./AnimeDetails";
 
 @Table({
     tableName: "asset_images",
-    timestamps: true,
+    timestamps: true, // Crea `createdAt` e `updatedAt` automaticamente
 })
 export default class AssetImages extends Model {
+
     @Column({
         primaryKey: true,
         type: DataType.UUID,
-        defaultValue: DataType.UUIDV4,
+        defaultValue: DataType.UUIDV4, // Genera UUID automaticamente
     })
-    _uuid!: string;
+    id!: string;
+
+    @HasOne(() => AssetImages, { sourceKey: 'id', foreignKey: "assetReference", as: "detail" })
+    detail!: AssetImages;
 
     @Column({
-        type: DataType.TEXT,
+        type: DataType.TEXT, // Base64 per immagini o link
         allowNull: true,
         defaultValue: null,
     })
-    base64!: string | null;
+    origin!: string | null;
 
-    @HasOne(() => Anime, { foreignKey: "image", as: "detail" })
-    detail!: Anime;
+    @Column({
+        type: DataType.TEXT, // Base64 per immagini o link
+        allowNull: true,
+        defaultValue: null,
+    })
+    thumbnail!: string | null;
 }

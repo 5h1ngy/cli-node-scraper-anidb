@@ -1,11 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    DataType,
-    ForeignKey,
-    BelongsTo,
-} from "sequelize-typescript";
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasOne } from "sequelize-typescript";
 import TagDetails from "./TagDetails";
 
 @Table({
@@ -18,23 +11,15 @@ export default class TagReferences extends Model {
         type: DataType.UUID,
         defaultValue: DataType.UUIDV4,
     })
-    _uuid!: string;
+    id!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
         unique: true,
     })
-    id!: string;
+    tagId!: string;
 
-    @ForeignKey(() => TagDetails)
-    @Column({
-        type: DataType.STRING,
-        allowNull: true,
-        defaultValue: null,
-    })
-    details!: string | null;
-
-    @BelongsTo(() => TagDetails, { as: "detail" })
+    @HasOne(() => TagDetails, { sourceKey: 'id', foreignKey: "tagReference", as: "detail" })
     detail!: TagDetails;
 }

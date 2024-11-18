@@ -2,17 +2,18 @@ import { promises as fs } from "fs";
 import path from "path";
 import { logInfo, logError, logWarn } from "@/shared/logger";
 import { APP_ERRORS } from "@/handlers/appErrors";
-import getAnimeId from "@/services/getAnimeId";
-import Anime from "@/models/Anime";
+import getAnimeReferences from "@/services/getAnimeReferences";
+import AnimeReferences from "@/models/AnimeReferences";
+import AnimeDetails from "@/models/AnimeDetails";
 
-export default class AnimeCollector {
+export default class AnimeReferencesCollector {
     private readonly PROGRESS_FILE: string;
     private readonly PAGES_MAX: number;
+    public complete: boolean = false;
 
     constructor() {
-        debugger
         this.PROGRESS_FILE = path.resolve(__dirname, "..", "..", "data", "progress.json");
-        this.PAGES_MAX = 2000; // Numero massimo di pagine
+        this.PAGES_MAX = 5; // Numero massimo di pagine
     }
 
     /**
@@ -26,7 +27,7 @@ export default class AnimeCollector {
             await fs.mkdir(dataDir, { recursive: true });
         } catch (err: any) {
             if (err.code !== "EEXIST") {
-                logError(`[ERROR] Failed to create progress directory: ${err.message}`);
+                logError(`[AnimeReferencesCollector][saveProgress] Failed to create progress directory: ${err.message}`);
                 throw err;
             }
         }
@@ -35,9 +36,9 @@ export default class AnimeCollector {
         const data = JSON.stringify({ page });
         try {
             await fs.writeFile(this.PROGRESS_FILE, data, "utf8");
-            logInfo(`[INFO] Progress saved successfully: page ${page}`);
+            logInfo(`[AnimeReferencesCollector][saveProgress] Progress saved successfully for page: ${page}`);
         } catch (err: any) {
-            logError(`[ERROR] Failed to save progress: ${err.message}`);
+            logError(`[AnimeReferencesCollector][saveProgress] Failed to save progress for page ${page}: ${err.message}`);
             throw err;
         }
     }
@@ -50,15 +51,15 @@ export default class AnimeCollector {
         try {
             const data = await fs.readFile(this.PROGRESS_FILE, "utf8");
             const { page } = JSON.parse(data);
-            logInfo(`[INFO] Loaded progress: starting from page ${page}`);
+            logInfo(`[AnimeReferencesCollector][loadProgress] Loaded progress. Resuming from page: ${page}`);
             return page;
         } catch (err: any) {
             if (err.code === "ENOENT") {
-                logWarn(`[WARNING] Progress file not found. Starting from page 1.`);
+                logWarn(`[AnimeReferencesCollector][loadProgress] Progress file not found. Starting from page 1.`);
                 await this.saveProgress(1);
                 return 1;
             } else {
-                logError(`[ERROR] Failed to load progress: ${err.message}`);
+                logError(`[AnimeReferencesCollector][loadProgress] Failed to load progress: ${err.message}`);
                 throw err;
             }
         }
@@ -68,32 +69,39 @@ export default class AnimeCollector {
      * Esegue l'operazione principale per raccogliere riferimenti anime.
      */
     public async run(): Promise<boolean> {
-        logInfo(`[bulkOperations/collectAnimeReferences] running`);
+        logInfo(`[AnimeReferencesCollector][run] Starting collection process`);
 
         const startPage = await this.loadProgress();
 
-        if (startPage === 0) {
-            logInfo(`[bulkOperations/collectAnimeReferences] No progress found. Starting from page 0.`);
+        if (startPage === 1) {
+            logInfo(`[AnimeReferencesCollector][run] No progress found. Starting from page 1.`);
         }
 
         for (let page = startPage; page < this.PAGES_MAX; page++) {
             try {
-                const ids = await getAnimeId(page);
-                for (let reference of ids) {
-                    const test = await Anime.findOrCreate({ where: { reference } });
-                    logInfo(`[SUCCESS][bulkOperations/collectAnimeReferences] page: ${page}, id: ${reference}`);
+                logInfo(`[AnimeReferencesCollector][run] Fetching anime IDs from page: ${page}`);
+                const ids = await getAnimeReferences(page);
+                logInfo(`[AnimeReferencesCollector][run] Successfully fetched IDs: ${ids.join(", ")}`);
+
+                for (let animeId of ids) {
+                    await AnimeReferences.findOrCreate({ where: { animeId } });
+                    logInfo(`[AnimeReferencesCollector][run] Anime ID ${animeId} stored in database.`);
                 }
+
+                await this.saveProgress(page);
+                logInfo(`[AnimeReferencesCollector][run] Progress saved after processing page: ${page}`);
             } catch (error: any) {
                 if (typeof error === "object" && error !== null && "type" in error) {
                     if (error.type !== APP_ERRORS.NO_RESULTS) {
-                        logWarn(`[WARNING][operations/collectAnimeReferences] page: ${page}, ${error.type}`);
+                        logWarn(`[AnimeReferencesCollector][run] Page ${page} error type: ${error.type}`);
                     } else {
                         await this.saveProgress(page);
+                        logInfo(`[AnimeReferencesCollector][run] No results for page: ${page}. Ending collection.`);
+                        this.complete = true;
                         return true;
                     }
                 } else {
-                    logError(`[ERROR][operations/collectAnimeReferences] page: ${page}, generic error, see logs`);
-                    logError(JSON.stringify(error));
+                    logError(`[AnimeReferencesCollector][run] Unexpected error on page ${page}: ${JSON.stringify(error)}`);
                 }
                 await this.saveProgress(page);
                 throw error;
@@ -101,6 +109,8 @@ export default class AnimeCollector {
         }
 
         await this.saveProgress(0);
+        logInfo(`[AnimeReferencesCollector][run] Collection process completed.`);
+        this.complete = true;
         return true;
     }
 }
