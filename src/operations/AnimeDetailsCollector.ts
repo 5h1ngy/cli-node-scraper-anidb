@@ -15,6 +15,7 @@ import AnimeDetails from "@/models/AnimeDetails";
 import TagDetails from "@/models/TagDetails";
 import TagReferences from "@/models/TagReferences";
 import AnimeTags from "@/models/AnimeTags";
+import getAnimeAsset from "@/services/getAnimeAsset";
 
 const REQUEST_DELAY = 2000; // Delay per le richieste
 
@@ -126,11 +127,12 @@ export default class AnimeDetailsCollector {
         try {
             logWarn(`[AnimeDetailsCollector][processAnimeDetails] Collecting details for AnimeReference id: ${animeReference.id}`);
             const { details, tags, image } = await getAnimeDetail(REQUEST_DELAY, animeReference.animeId);
+            const base64 = await getAnimeAsset(REQUEST_DELAY, image.src);
 
             logInfo(`[AnimeDetailsCollector][processAnimeDetails] animeReference.id: ${animeReference.id}`);
 
             const [assetImage] = await AssetImages.findOrCreate({
-                where: { thumbnail: image.base64, origin: image.src }
+                where: { thumbnail: base64, origin: image.src }
             });
 
             logInfo(`[AnimeDetailsCollector][processAnimeDetails] assetImage.origin: ${assetImage.origin}`);

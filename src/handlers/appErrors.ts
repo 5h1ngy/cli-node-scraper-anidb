@@ -5,6 +5,8 @@ type AppErrorResult = string | Error;
 
 export enum APP_ERRORS { BANNED = 'banned', ROBOT = 'robot', NO_RESULTS = 'no-results', ADULT_CONTENT = 'adult-contents' }
 
+export const isError = <AppErrorResult>(thing: any): thing is AppErrorResult => true;
+
 /**
  * Analizza errori dell'app.
  * @param data - HTML in formato stringa da analizzare.

@@ -2,9 +2,8 @@ import _ from "lodash";
 import axios from "axios";
 import * as cheerio from "cheerio";
 
-import { logInfo, logError } from "@/shared/logger";
 import getFakeClient from "@/handlers/getFakeClient";
-import appErrors from "@/handlers/appErrors";
+import appErrors, { isError } from "@/handlers/appErrors";
 import extractNumbers from "@/utils/extractNumbers";
 
 type Anime = {
@@ -15,30 +14,8 @@ type Anime = {
         season?: string;
     };
     tags: { id: string; name: string }[];
-    image: { src: string; base64: string };
+    image: { src: string; };
 };
-
-/**
- * Scarica un'immagine da un URL e la converte in formato base64.
- * @param imageUrl L'URL dell'immagine da scaricare.
- * @returns Una Promise che restituisce una stringa contenente l'immagine in formato base64.
- */
-async function downloadImageAsBase64(imageUrl: string): Promise<string> {
-    try {
-        const response = await axios.get(imageUrl, {
-            responseType: "arraybuffer", // Riceviamo i dati come buffer.
-        });
-
-        const base64Image = Buffer.from(response.data, "binary").toString("base64");
-        const contentType = response.headers["content-type"];
-
-        return `data:${contentType};base64,${base64Image}`;
-    } catch (error) {
-        logError(`[downloadImageAsBase64] Failed to download image from URL: ${imageUrl}`);
-        logError(JSON.stringify(error));
-        return "";
-    }
-}
 
 /**
  * Estrae i dettagli di un anime dalla pagina HTML di AniDB.
@@ -53,9 +30,9 @@ export default function getAnimeDetails(delay: number, id: string): Promise<Anim
             const response = await axios.get(`https://anidb.net/anime/${id}`, options);
             const parsed = await appErrors(response.data);
 
-            if (typeof parsed === 'string') {
-                const $ = cheerio.load(parsed);
-                const anime: Anime = { details: {}, tags: [], image: { src: "", base64: "" } };
+            if (isError(parsed)) {
+                const $ = cheerio.load(<string>parsed);
+                const anime: Anime = { details: {}, tags: [], image: { src: "" } };
 
                 $(".data #tabbed_pane #tab_1_pane .g_definitionlist table tbody tr").each(function () {
                     const field = _.kebabCase($(this).find("th").text()) || undefined;
@@ -98,8 +75,7 @@ export default function getAnimeDetails(delay: number, id: string): Promise<Anim
 
                 const img = $("picture").find("img").attr();
                 if (img?.src) {
-                    const base64 = (await downloadImageAsBase64(img.src)) || "";
-                    anime.image = { src: img.src, base64 };
+                    anime.image = { src: img.src };
                 }
 
                 resolve(anime);
