@@ -78,11 +78,11 @@ export default class AnimeDetailsCollector {
     public async run(): Promise<void> {
         logWarn(`[AnimeDetailsCollector][run] Running operation to collect anime details`);
 
-        try {
-            const animeReferences = await AnimeReferences.findAll();
-            const lastProgress = await this.loadProgress();
+        const animeReferences = await AnimeReferences.findAll();
+        const lastProgress = await this.loadProgress();
 
-            for (const animeReference of animeReferences) {
+        for (const animeReference of animeReferences) {
+            try {
                 if (lastProgress && animeReference.animeId === lastProgress) {
                     logInfo(`[AnimeDetailsCollector][run] Resuming from AnimeReference animeId: ${animeReference.animeId}`);
                 }
@@ -92,37 +92,30 @@ export default class AnimeDetailsCollector {
 
                 logWarn(`[AnimeDetailsCollector][run] Processing AnimeReference id: ${animeReference.animeId}`);
                 if (expired || exist) {
-                    await this.saveProgress(animeReference.animeId); // Salva il progresso prima di processare
                     await this.processAnimeDetails(animeReference);
-
+                    await this.saveProgress(animeReference.animeId); // Salva il progresso prima di processare
                 } else {
                     logInfo(`[SUCCESS][AnimeDetailsCollector][run] AnimeReference id: ${animeReference.animeId} already exists.`);
 
                 }
+            } catch (error) {
+
+                if (typeof error === "object" && error !== null && "type" in error) {
+                    if (error.type !== APP_ERRORS.NO_RESULTS) {
+                        logWarn(`[AnimeDetailsCollector][run] animeReference ${animeReference.animeId} error type: ${error.type}`);
+                    } else {
+                        await this.saveProgress(animeReference.animeId);
+                        logInfo(`[AnimeDetailsCollector][run] No results for animeReference: ${animeReference.animeId}. Ending collection.`);
+                    }
+                } else {
+                    logError(`[AnimeDetailsCollector][run] Unexpected error on animeReference ${animeReference.animeId}: ${JSON.stringify(error)}`);
+                }
+                await this.saveProgress(animeReference.animeId);
+                throw error;
             }
-
-            await this.saveProgress(null); // Ripristina il progresso alla fine
-        } catch (error) {
-
-            // if (typeof error === "object" && error !== null && "type" in error) {
-            //     if (error.type !== APP_ERRORS.NO_RESULTS) {
-            //         logWarn(`[AnimeDetailsCollector][run] Page ${page} error type: ${error.type}`);
-            //     } else {
-            //         await this.saveProgress(page);
-            //         logInfo(`[AnimeDetailsCollector][run] No results for page: ${page}. Ending collection.`);
-            //         this.complete = true;
-            //         return true;
-            //     }
-            // } else {
-            //     logError(`[AnimeDetailsCollector][run] Unexpected error on page ${page}: ${JSON.stringify(error)}`);
-            // }
-            // await this.saveProgress(page);
-            // throw error;
-
-            logError(`[AnimeDetailsCollector][run] Failed with error: ${error.message}`);
-            debugger;
-            throw error;
         }
+
+        await this.saveProgress(null); // Ripristina il progresso alla fine
     }
 
     /**
@@ -134,10 +127,13 @@ export default class AnimeDetailsCollector {
             logWarn(`[AnimeDetailsCollector][processAnimeDetails] Collecting details for AnimeReference id: ${animeReference.id}`);
             const { details, tags, image } = await getAnimeDetail(REQUEST_DELAY, animeReference.animeId);
 
+            logInfo(`[AnimeDetailsCollector][processAnimeDetails] animeReference.id: ${animeReference.id}`);
 
             const [assetImage] = await AssetImages.findOrCreate({
                 where: { thumbnail: image.base64, origin: image.src }
             });
+
+            logInfo(`[AnimeDetailsCollector][processAnimeDetails] assetImage.origin: ${assetImage.origin}`);
 
             const [animeDetail] = await AnimeDetails.findOrCreate({
                 where: { animeReference: animeReference.id },
@@ -149,7 +145,6 @@ export default class AnimeDetailsCollector {
                     assetReference: assetImage.id || null,
                 },
             });
-
             await this.processTags(animeDetail, tags);
 
         } catch (error) {

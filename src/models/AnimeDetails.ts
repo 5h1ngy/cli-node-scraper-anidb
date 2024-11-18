@@ -32,7 +32,7 @@ export default class AnimeDetails extends Model {
     @Column({
         type: DataType.STRING,
         allowNull: true,
-        unique: true, // Deve essere unico per essere referenziato
+        // unique: true, // Deve essere unico per essere referenziato
     })
     assetReference!: string;
 
@@ -62,7 +62,6 @@ export default class AnimeDetails extends Model {
         allowNull: true,
     })
     season!: string | null;
-
 
     @BelongsToMany(() => TagDetails, () => AnimeTags)
     tags!: TagDetails[];

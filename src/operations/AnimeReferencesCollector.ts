@@ -13,7 +13,7 @@ export default class AnimeReferencesCollector {
 
     constructor() {
         this.PROGRESS_FILE = path.resolve(__dirname, "..", "..", "data", "progress.json");
-        this.PAGES_MAX = 5; // Numero massimo di pagine
+        this.PAGES_MAX = 3; // Numero massimo di pagine
     }
 
     /**
