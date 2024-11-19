@@ -11,6 +11,6 @@ export default function extractNumbers(str?: string): string | undefined {
         // Se ci sono numeri, restituiscili concatenati, altrimenti restituisci una stringa vuota
         return numbers ? numbers.join('') : '';
     } else {
-        return undefined;
+        return undefined; // Restituisce undefined se l'input è undefined
     }
 }

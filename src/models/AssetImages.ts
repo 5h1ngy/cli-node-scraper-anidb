@@ -1,24 +1,38 @@
-import { Table, Model, Column, DataType, BelongsTo, ForeignKey } from "sequelize-typescript";
-import { HasOne } from "sequelize-typescript";
+import {
+    Table,
+    Model,
+    Column,
+    DataType,
+    HasOne,
+} from "sequelize-typescript";
 
-import AnimeDetails from "./AnimeDetails";
-
+/**
+ * Modello per rappresentare le immagini associate agli anime.
+ */
 @Table({
-    tableName: "asset_images",
-    timestamps: true, // Crea `createdAt` e `updatedAt` automaticamente
+    tableName: "asset_images", // Nome della tabella
+    timestamps: true, // Aggiunge automaticamente `createdAt` e `updatedAt`
 })
 export default class AssetImages extends Model {
-
+    /**
+     * Identificatore unico dell'immagine.
+     */
     @Column({
         primaryKey: true,
         type: DataType.UUID,
-        defaultValue: DataType.UUIDV4, // Genera UUID automaticamente
+        defaultValue: DataType.UUIDV4,
     })
     id!: string;
 
-    @HasOne(() => AssetImages, { sourceKey: 'id', foreignKey: "assetReference", as: "detail" })
+    /**
+     * Riferimento all'asset associato.
+     */
+    @HasOne(() => AssetImages, { sourceKey: "id", foreignKey: "assetReference", as: "detail" })
     detail!: AssetImages;
 
+    /**
+     * URL di origine dell'immagine o il suo identificativo.
+     */
     @Column({
         type: DataType.TEXT, // Base64 per immagini o link
         allowNull: true,
@@ -26,6 +40,9 @@ export default class AssetImages extends Model {
     })
     origin!: string | null;
 
+    /**
+     * Miniatura dell'immagine, in formato base64 o URL.
+     */
     @Column({
         type: DataType.TEXT, // Base64 per immagini o link
         allowNull: true,

@@ -2,10 +2,14 @@ import { promises as fs } from "fs";
 import path from "path";
 import { logError, logInfo } from "@/shared/logger";
 
+/**
+ * Classe per la gestione dello stato di avanzamento del processo.
+ * Salva e recupera dati sul progresso corrente per supportare riprese.
+ */
 export default class ProgressManager {
-    private readonly PROGRESS_FILE: string;
-    private page: string | null;
-    private anime: string | null;
+    private readonly PROGRESS_FILE: string; // Percorso del file di stato
+    private page: string | null; // Stato corrente della pagina
+    private anime: string | null; // Stato corrente dell'anime
 
     constructor() {
         this.PROGRESS_FILE = process.env.NODE_ENV === "development"
@@ -15,6 +19,10 @@ export default class ProgressManager {
         this.anime = null;
     }
 
+    /**
+     * Salva lo stato corrente su file.
+     * @throws Lancia un errore se il salvataggio fallisce.
+     */
     async save(): Promise<void> {
         const dataDir = path.dirname(this.PROGRESS_FILE);
         try {
@@ -36,6 +44,10 @@ export default class ProgressManager {
         }
     }
 
+    /**
+     * Carica lo stato salvato da file.
+     * @throws Lancia un errore se il caricamento fallisce.
+     */
     async load(): Promise<void> {
         try {
             const data = await fs.readFile(this.PROGRESS_FILE, "utf8");
@@ -55,6 +67,10 @@ export default class ProgressManager {
         }
     }
 
+    /**
+     * Cancella lo stato corrente eliminando il file di progresso.
+     * @throws Lancia un errore se la cancellazione fallisce.
+     */
     async clear(): Promise<void> {
         try {
             await fs.unlink(this.PROGRESS_FILE);
@@ -71,6 +87,11 @@ export default class ProgressManager {
         this.anime = null;
     }
 
+    /**
+     * Aggiorna gli stati interni e salva immediatamente.
+     * @param state - Nuovi stati da impostare.
+     * @throws Lancia un errore se il salvataggio fallisce.
+     */
     async setStates(state: { page?: number | null; anime?: string | null }) {
         if (state.page !== undefined) this.page = state.page !== null ? state.page.toString() : null;
         if (state.anime !== undefined) this.anime = state.anime;
@@ -79,6 +100,10 @@ export default class ProgressManager {
         await this.save();
     }
 
+    /**
+     * Restituisce lo stato corrente.
+     * @returns Oggetto contenente `page` e `anime`.
+     */
     getStates(): { page: number | null; anime: string | null } {
         return {
             page: typeof this.page === "string" ? parseInt(this.page) : null,

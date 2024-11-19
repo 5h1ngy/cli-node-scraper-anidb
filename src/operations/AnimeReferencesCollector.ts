@@ -4,23 +4,31 @@ import getAnimeReferences from "@/services/getAnimeReferences";
 import AnimeReferences from "@/models/AnimeReferences";
 import ProgressManager from "@/handlers/ProgressManager";
 
+/**
+ * Classe per la raccolta di riferimenti agli anime.
+ */
 export default class AnimeReferencesCollector {
-    private readonly PAGES_MAX: number;
-    private progressManager: ProgressManager;
-    public complete: boolean = false;
+    private readonly PAGES_MAX: number; // Numero massimo di pagine da analizzare
+    private progressManager: ProgressManager; // Gestisce il progresso dell'operazione
+    public complete: boolean = false; // Indica se il processo è completato
 
     constructor(progressManager: ProgressManager) {
         this.progressManager = progressManager;
-        this.PAGES_MAX = 1000; // Numero massimo di pagine
+        this.PAGES_MAX = 1000; // Configurazione predefinita per il numero massimo di pagine
     }
 
+    /**
+     * Esegue il processo di raccolta dei riferimenti agli anime.
+     * @returns `true` se la raccolta è completata con successo.
+     * @throws Lancia un errore in caso di fallimento.
+     */
     public async run(): Promise<boolean> {
         logInfo(`[AnimeReferencesCollector][run] Starting collection process`);
 
-        // Carica i progressi
+        // Carica il progresso precedente
         await this.progressManager.load();
         const { page: startPage } = this.progressManager.getStates();
-        const pageToStart = startPage !== null ? startPage : 1;
+        const pageToStart = startPage !== null ? startPage : 1; // Riprendi dalla pagina salvata o inizia dalla prima
 
         if (pageToStart === 1) {
             logInfo(`[AnimeReferencesCollector][run] No progress found. Starting from page 1.`);
@@ -32,11 +40,13 @@ export default class AnimeReferencesCollector {
                 const ids = await getAnimeReferences(page);
                 logInfo(`[AnimeReferencesCollector][run] Successfully fetched IDs: ${ids.join(", ")}`);
 
+                // Salva ogni ID nel database
                 for (let animeId of ids) {
                     await AnimeReferences.findOrCreate({ where: { animeId } });
                     logInfo(`[AnimeReferencesCollector][run] Anime ID ${animeId} stored in database.`);
                 }
 
+                // Salva lo stato del progresso dopo ogni pagina
                 await this.progressManager.setStates({ page });
                 logInfo(`[AnimeReferencesCollector][run] Progress saved after processing page: ${page}`);
             } catch (error: any) {
@@ -47,16 +57,16 @@ export default class AnimeReferencesCollector {
                         await this.progressManager.setStates({ page });
                         logInfo(`[AnimeReferencesCollector][run] No results for page: ${page}. Ending collection.`);
                         this.complete = true;
-                        return true;
+                        return true; // Conclude il processo se non ci sono più risultati
                     }
                 } else {
                     logError(`[AnimeReferencesCollector][run] Unexpected error on page ${page}: ${JSON.stringify(error)}`);
                 }
-                throw error;
+                throw error; // Interrompe l'esecuzione in caso di errore imprevisto
             }
         }
 
-        await this.progressManager.setStates({ page: null });
+        await this.progressManager.setStates({ page: null }); // Resetta il progresso alla fine
         logInfo(`[AnimeReferencesCollector][run] Collection process completed.`);
         this.complete = true;
         return true;

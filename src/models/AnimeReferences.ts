@@ -1,25 +1,34 @@
-import { Table, Column, Model, DataType, Unique, PrimaryKey, ForeignKey, BelongsTo, HasOne } from "sequelize-typescript";
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    PrimaryKey,
+    HasOne,
+} from "sequelize-typescript";
 import AnimeDetails from "./AnimeDetails";
 
+/**
+ * Modello per rappresentare i riferimenti agli anime.
+ */
 @Table({
-    tableName: "anime_references",
-    timestamps: true, // Crea `createdAt` e `updatedAt` automaticamente
+    tableName: "anime_references", // Nome della tabella
+    timestamps: true, // Aggiunge automaticamente `createdAt` e `updatedAt`
 })
 export default class AnimeReferences extends Model {
-
     @PrimaryKey
     @Column({
         type: DataType.UUID,
-        defaultValue: DataType.UUIDV4, // Genera UUID automaticamente
+        defaultValue: DataType.UUIDV4, // Genera automaticamente un UUID
     })
     id!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: false, // Campo obbligatorio
     })
-    animeId!: string; // Contiene l'id dell'anime e funge da chiave esterna
+    animeId!: string; // Identificatore unico dell'anime
 
-    @HasOne(() => AnimeDetails, { sourceKey:'id', foreignKey: "animeReference", as: "detail" })
+    @HasOne(() => AnimeDetails, { sourceKey: "id", foreignKey: "animeReference", as: "detail" })
     detail!: AnimeDetails;
 }

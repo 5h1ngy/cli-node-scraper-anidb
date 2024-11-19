@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'path';
 import { Sequelize } from 'sequelize-typescript';
 
 import AnimeDetails from "@/models/AnimeDetails";
@@ -9,6 +9,9 @@ import AssetImages from "@/models/AssetImages";
 import AnimeTags from "@/models/AnimeTags";
 import { logWarn, logVerbose } from "@/shared/logger";
 
+/**
+ * Configura l'istanza Sequelize per la gestione del database SQLite.
+ */
 const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: process.env.NODE_ENV === "development"
@@ -18,11 +21,14 @@ const sequelize = new Sequelize({
     models: [AnimeDetails, AnimeReferences, TagDetails, TagReferences, AssetImages, AnimeTags],
 });
 
+/**
+ * Funzione per connettersi al database.
+ * @throws Lancia un errore se la connessione al database fallisce.
+ */
 export async function connect() {
     try {
         await sequelize.authenticate();
         console.log("Connection has been established successfully.");
-
         await sequelize.sync();
         logWarn("Database synchronized successfully!");
     } catch (error) {
@@ -31,6 +37,10 @@ export async function connect() {
     }
 }
 
+/**
+ * Funzione per disconnettersi dal database.
+ * @throws Lancia un errore se la disconnessione dal database fallisce.
+ */
 export async function disconnect() {
     try {
         await sequelize.close();

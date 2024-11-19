@@ -1,0 +1,23 @@
+{
+    "entryPoints": [
+        "src/"
+    ],
+    "entryPointStrategy": "expand",
+    "out": "docs",
+    "includeVersion": true,
+    "exclude": [
+        "**/*.test.ts",
+        "node_modules/sequelize/**"
+    ],
+    "excludePrivate": true,
+    "excludeProtected": false,
+    "excludeExternals": false,
+    "tsconfig": "tsconfig.typedoc.json",
+    "highlightLanguages": [
+        "typescript",
+        "javascript",
+        "json",
+        "sql"
+    ],
+    "readme": "none"
+}

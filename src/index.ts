@@ -1,23 +1,25 @@
 #!/usr/bin/env node
 
-import "./config/env";
-
+import "./config/env"; // Configurazione dell'ambiente
 import { connect, disconnect } from "@/config/database";
 import { logError, logWarn, logInfo } from "@/shared/logger";
 import AnimeReferencesCollector from "@/operations/AnimeReferencesCollector";
 import AnimeDetailsCollector from "@/operations/AnimeDetailsCollector";
 import ProgressManager from "@/handlers/ProgressManager";
 
+/**
+ * Punto di ingresso principale per l'applicazione.
+ */
 (async () => {
     logInfo(`mode: ${process.env.NODE_ENV}`);
     logInfo("Scraper starting...");
-    await connect();
+    await connect(); // Connessione al database
 
     const progressManager = new ProgressManager();
 
     // Gestione dei segnali di terminazione
-    process.on('SIGINT', async () => {
-        logWarn('Received SIGINT. Saving progress and exiting...');
+    process.on("SIGINT", async () => {
+        logWarn("Received SIGINT. Saving progress and exiting...");
         try {
             await progressManager.save();
         } catch (err) {
@@ -26,8 +28,8 @@ import ProgressManager from "@/handlers/ProgressManager";
         process.exit(0);
     });
 
-    process.on('SIGTERM', async () => {
-        logWarn('Received SIGTERM. Saving progress and exiting...');
+    process.on("SIGTERM", async () => {
+        logWarn("Received SIGTERM. Saving progress and exiting...");
         try {
             await progressManager.save();
         } catch (err) {
@@ -36,7 +38,7 @@ import ProgressManager from "@/handlers/ProgressManager";
         process.exit(0);
     });
 
-    process.on('uncaughtException', async (err) => {
+    process.on("uncaughtException", async (err) => {
         logError(`Uncaught Exception: ${err}`);
         try {
             await progressManager.save();
@@ -58,7 +60,7 @@ import ProgressManager from "@/handlers/ProgressManager";
         await disconnect();
     } catch (error) {
         logError(`Error during collection: ${error}`);
-        // Assicurati di salvare i progressi prima di uscire
+        // Salva i progressi prima di uscire
         try {
             await progressManager.save();
         } catch (saveErr) {

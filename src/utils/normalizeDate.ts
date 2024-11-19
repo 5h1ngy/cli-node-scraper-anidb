@@ -4,7 +4,7 @@ import _ from "lodash";
 /**
  * Funzione per normalizzare le date.
  * Gestisce formati incerti come `??.??.YYYY` e li converte in un formato standard `YYYY-MM-DD`.
- * @param inputDate La data da normalizzare, in formato stringa.
+ * @param inputDate - La data da normalizzare, in formato stringa.
  * @returns La data normalizzata in formato `YYYY-MM-DD` oppure `null` se la normalizzazione fallisce.
  */
 export function normalizeDate(inputDate: string | null | undefined): string | null {
@@ -40,9 +40,9 @@ export function normalizeDate(inputDate: string | null | undefined): string | nu
 }
 
 /**
- * Funzione per verificare se una data è già normalizzata.
+ * Verifica se una data è già normalizzata.
  * Controlla se il formato della data è `YYYY-MM-DD` e se è valida.
- * @param inputDate La data da verificare, in formato stringa.
+ * @param inputDate - La data da verificare, in formato stringa.
  * @returns `true` se la data è già normalizzata, altrimenti `false`.
  */
 export function isDateNormalized(inputDate: string | null | undefined): boolean {

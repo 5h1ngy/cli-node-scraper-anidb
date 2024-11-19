@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import sizeof from "object-sizeof";
 
 import { logInfo, logError, logVerbose, logWarn } from "@/shared/logger";
-// import { normalizeDate } from "@/utils/normalizeDate";
 import formatBytes from "@/utils/formatBytes";
 import { APP_ERRORS } from "@/handlers/appErrors";
 import AnimeReferences from "@/models/AnimeReferences";
@@ -16,8 +15,12 @@ import AnimeTags from "@/models/AnimeTags";
 import getAnimeAsset from "@/services/getAnimeAsset";
 import ProgressManager from "@/handlers/ProgressManager";
 
-const REQUEST_DELAY = 2000; // Delay per le richieste
+// Ritardo tra le richieste
+const REQUEST_DELAY = 2000;
 
+/**
+ * Classe che gestisce la raccolta dei dettagli degli anime.
+ */
 export default class AnimeDetailsCollector {
     private progressManager: ProgressManager;
 
@@ -61,6 +64,12 @@ export default class AnimeDetailsCollector {
                 }
             } catch (error) {
                 if (typeof error === "object" && error !== null && "type" in error) {
+                    // Gestisce errori noti (ad esempio, blocco o banning)
+                    if (error.type === APP_ERRORS.BANNED || error.type === APP_ERRORS.ROBOT) {
+                        logError(`[BLOCKED][AnimeDetailsCollector][run] Execution blocked: ${error.type}`);
+                        throw new Error(`Execution halted due to ${error.type}. Please resolve the issue and try again.`);
+                    }
+
                     if (error.type !== APP_ERRORS.NO_RESULTS) {
                         logWarn(`[AnimeDetailsCollector][run] animeReference ${animeReference.animeId} error type: ${error.type}`);
                     } else {
@@ -70,11 +79,14 @@ export default class AnimeDetailsCollector {
                 } else {
                     logError(`[AnimeDetailsCollector][run] Unexpected error on animeReference ${animeReference.animeId}: ${JSON.stringify(error)}`);
                 }
+
+                // Aggiorna lo stato prima di terminare
                 await this.progressManager.setStates({ anime: animeReference.animeId });
-                throw error;
+                throw error; // Propaga l'errore critico
             }
         }
 
+        // Reset dello stato
         await this.progressManager.setStates({ anime: null });
     }
 

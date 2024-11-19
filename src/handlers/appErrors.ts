@@ -1,16 +1,33 @@
 import * as cheerio from 'cheerio';
 import { convert } from 'html-to-text';
 
+/**
+ * Tipo di risultato per un errore dell'applicazione.
+ */
 type AppErrorResult = string | Error;
 
-export enum APP_ERRORS { BANNED = 'banned', ROBOT = 'robot', NO_RESULTS = 'no-results', ADULT_CONTENT = 'adult-contents' }
+/**
+ * Enumerazione dei possibili errori dell'applicazione.
+ */
+export enum APP_ERRORS {
+    BANNED = 'banned',
+    ROBOT = 'robot',
+    NO_RESULTS = 'no-results',
+    ADULT_CONTENT = 'adult-contents'
+}
 
+/**
+ * Identifica se un oggetto è un errore.
+ * @template T
+ * @param thing - Oggetto da controllare.
+ * @returns `true` se l'oggetto è un errore.
+ */
 export const isError = <AppErrorResult>(thing: any): thing is AppErrorResult => true;
 
 /**
- * Analizza errori dell'app.
- * @param data - HTML in formato stringa da analizzare.
- * @returns Una Promise che restituisce l'input originale se non ci sono errori, altrimenti lancia un errore personalizzato.
+ * Analizza errori nell'applicazione basati su contenuto HTML.
+ * @param data - Stringa HTML da analizzare.
+ * @returns Una Promise che restituisce l'input originale se non ci sono errori, altrimenti un errore personalizzato.
  */
 export default async function appErrors(data: string): Promise<AppErrorResult> {
     const $ = cheerio.load(data);
@@ -42,7 +59,6 @@ export default async function appErrors(data: string): Promise<AppErrorResult> {
         return warning;
 
     } else {
-        return data; // Nessun errore rilevato, ritorna l'input originale.
-
+        return data;
     }
 }

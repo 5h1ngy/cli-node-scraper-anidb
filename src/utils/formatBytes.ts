@@ -1,6 +1,6 @@
 /**
  * Converte un valore in byte in una stringa leggibile con unità appropriate (Bytes, KB, MB, etc.).
- * @param bytes Il numero di byte da formattare.
+ * @param bytes - Il numero di byte da formattare.
  * @returns Una stringa formattata che rappresenta il valore in una unità leggibile (es. "1.23 MB").
  */
 export default function formatBytes(bytes: number): string {

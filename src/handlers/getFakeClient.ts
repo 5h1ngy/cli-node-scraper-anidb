@@ -1,6 +1,9 @@
 import UserAgent from 'user-agents';
 import { faker } from '@faker-js/faker';
 
+/**
+ * Tipo delle intestazioni HTTP generate casualmente.
+ */
 type FakeClientHeaders = {
     'User-Agent': string;
     'accept': string;
@@ -17,14 +20,16 @@ type FakeClientHeaders = {
     'upgrade-insecure-requests': string;
 };
 
+/**
+ * Genera un set di intestazioni HTTP simulate per richieste.
+ * @returns Intestazioni HTTP simulate.
+ */
 export default function getFakeClient(): FakeClientHeaders {
     const userAgent = new UserAgent().toString();
 
-    // Genera un valore casuale per 'accept-language'
     const acceptLanguageOptions = ['en-US', 'it-IT', 'fr-FR', 'de-DE', 'es-ES', 'ja-JP'];
     const acceptLanguage = faker.helpers.arrayElement(acceptLanguageOptions);
 
-    // Creazione manuale di un accept header randomizzato
     const acceptValues = [
         'text/html',
         'application/xhtml+xml',
@@ -39,8 +44,8 @@ export default function getFakeClient(): FakeClientHeaders {
 
     return {
         'User-Agent': userAgent,
-        'accept': acceptHeader, // Header costruito manualmente
-        'accept-language': acceptLanguage, // Lingua scelta casualmente
+        'accept': acceptHeader,
+        'accept-language': acceptLanguage,
         'cache-control': 'max-age=0',
         'priority': 'u=0, i',
         'sec-ch-ua': `"Chromium"v="${faker.system.semver()}", "NotA=Brand"v="24", "Google Chrome"v="${faker.system.semver()}"`,
