@@ -17,12 +17,13 @@ export enum APP_ERRORS {
 }
 
 /**
- * Identifica se un oggetto è un errore.
- * @template T
- * @param thing - Oggetto da controllare.
- * @returns `true` se l'oggetto è un errore.
+ * Verifica se un valore è di tipo AppErrorResult.
+ * @param thing - Il valore da verificare.
+ * @returns `true` se il valore è di tipo `AppErrorResult`, altrimenti `false`.
  */
-export const isError = <AppErrorResult>(thing: any): thing is AppErrorResult => true;
+export const isError = (thing: any): thing is AppErrorResult => {
+    return thing instanceof Error;
+};
 
 /**
  * Analizza errori nell'applicazione basati su contenuto HTML.

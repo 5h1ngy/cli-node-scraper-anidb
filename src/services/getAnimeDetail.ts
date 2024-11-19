@@ -33,7 +33,7 @@ export default function getAnimeDetail(delay: number, id: string): Promise<Anime
                 const response = await axios.get(`https://anidb.net/anime/${id}`, options);
                 const parsed = await appErrors(response.data);
 
-                if (isError(parsed)) {
+                if (!isError(parsed)) {
                     const $ = cheerio.load(<string>parsed);
                     const anime: Anime = { details: {}, tags: [], image: { src: "" } };
 

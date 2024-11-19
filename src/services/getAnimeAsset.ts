@@ -16,7 +16,7 @@ export default function getAnimeAsset(delay: number, imageUrl: string): Promise<
                 const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
                 const parsed = await appErrors(response.data);
 
-                if (isError(parsed)) {
+                if (!isError(parsed)) {
                     const base64Image = Buffer.from(response.data, "binary").toString("base64");
                     const contentType = response.headers["content-type"];
                     resolve(`data:${contentType};base64,${base64Image}`);
