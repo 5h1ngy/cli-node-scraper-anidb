@@ -7,12 +7,14 @@ import TagDetails from "@/models/TagDetails";
 import TagReferences from "@/models/TagReferences";
 import AssetImages from "@/models/AssetImages";
 import AnimeTags from "@/models/AnimeTags";
-import { logWarn } from "@/shared/logger";
+import { logWarn, logVerbose } from "@/shared/logger";
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: path.resolve(__dirname, '..', '..', 'data', process.env.DB_STORAGE || ''),
-    logging: process.env.DB_LOGGING === "true" ? logWarn : false || false,
+    storage: process.env.NODE_ENV === "development"
+        ? path.resolve(__dirname, "..", "..", "data", process.env.STORAGE_FILE || 'db_dump.db')
+        : path.resolve(process.cwd(), "data", process.env.STORAGE_FILE || 'db_dump.db'),
+    logging: process.env.LOGGING_DB === "true" ? logVerbose : false || false,
     models: [AnimeDetails, AnimeReferences, TagDetails, TagReferences, AssetImages, AnimeTags],
 });
 
@@ -20,7 +22,7 @@ export async function connect() {
     try {
         await sequelize.authenticate();
         console.log("Connection has been established successfully.");
-        
+
         await sequelize.sync();
         logWarn("Database synchronized successfully!");
     } catch (error) {

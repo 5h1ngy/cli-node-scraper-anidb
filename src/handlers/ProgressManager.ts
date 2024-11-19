@@ -8,7 +8,9 @@ export default class ProgressManager {
     private anime: string | null;
 
     constructor() {
-        this.PROGRESS_FILE = path.resolve(__dirname, "..", "..", "data", "progress.json");
+        this.PROGRESS_FILE = process.env.NODE_ENV === "development"
+            ? path.resolve(__dirname, "..", "..", "data", process.env.PROGRESS_FILE || "progress.json")
+            : path.resolve(process.cwd(), "data", process.env.PROGRESS_FILE || "progress.json");
         this.page = null;
         this.anime = null;
     }

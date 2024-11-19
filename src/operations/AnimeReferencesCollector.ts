@@ -52,7 +52,6 @@ export default class AnimeReferencesCollector {
                 } else {
                     logError(`[AnimeReferencesCollector][run] Unexpected error on page ${page}: ${JSON.stringify(error)}`);
                 }
-                await this.progressManager.setStates({ page });
                 throw error;
             }
         }

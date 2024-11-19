@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import "./config/env";
 
 import { connect, disconnect } from "@/config/database";
@@ -7,6 +9,7 @@ import AnimeDetailsCollector from "@/operations/AnimeDetailsCollector";
 import ProgressManager from "@/handlers/ProgressManager";
 
 (async () => {
+    logInfo(`mode: ${process.env.NODE_ENV}`);
     logInfo("Scraper starting...");
     await connect();
 

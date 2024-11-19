@@ -2,8 +2,8 @@ import _ from "lodash";
 import dayjs from "dayjs";
 import sizeof from "object-sizeof";
 
-import { logInfo, logError, logWarn } from "@/shared/logger";
-import { normalizeDate } from "@/utils/normalizeDate";
+import { logInfo, logError, logVerbose, logWarn } from "@/shared/logger";
+// import { normalizeDate } from "@/utils/normalizeDate";
 import formatBytes from "@/utils/formatBytes";
 import { APP_ERRORS } from "@/handlers/appErrors";
 import AnimeReferences from "@/models/AnimeReferences";
@@ -29,7 +29,7 @@ export default class AnimeDetailsCollector {
      * Metodo principale per raccogliere i dettagli degli anime.
      */
     public async run(): Promise<void> {
-        logWarn(`[AnimeDetailsCollector][run] Running operation to collect anime details`);
+        logVerbose(`[AnimeDetailsCollector][run] Running operation to collect anime details`);
 
         // Carica i progressi
         await this.progressManager.load();
@@ -52,7 +52,7 @@ export default class AnimeDetailsCollector {
                 const expired = dayjs(animeReference.updatedAt).isBefore(dayjs().subtract(3, "day"));
                 const exist = animeReference.detail === undefined;
 
-                logWarn(`[AnimeDetailsCollector][run] Processing AnimeReference id: ${animeReference.animeId}`);
+                logVerbose(`[AnimeDetailsCollector][run] Processing AnimeReference id: ${animeReference.animeId}`);
                 if (expired || exist) {
                     await this.processAnimeDetails(animeReference);
                     await this.progressManager.setStates({ anime: animeReference.animeId });
@@ -84,7 +84,7 @@ export default class AnimeDetailsCollector {
      */
     private async processAnimeDetails(animeReference: AnimeReferences): Promise<void> {
         try {
-            logWarn(`[AnimeDetailsCollector][processAnimeDetails] Collecting details for AnimeReference id: ${animeReference.id}`);
+            logVerbose(`[AnimeDetailsCollector][processAnimeDetails] Collecting details for AnimeReference id: ${animeReference.id}`);
             const { details, tags, image } = await getAnimeDetail(REQUEST_DELAY, animeReference.animeId);
             const base64 = image.src !== "" ? await getAnimeAsset(REQUEST_DELAY, image.src) : "";
 
@@ -101,7 +101,7 @@ export default class AnimeDetailsCollector {
                 defaults: {
                     title: details.title || null,
                     type: details.type || null,
-                    year: normalizeDate(details.year) || null,
+                    year: details.year || null,
                     season: details.season || null,
                     assetReference: assetImage.id || null,
                 },
@@ -140,12 +140,12 @@ export default class AnimeDetailsCollector {
                     },
                 });
 
-                logWarn(`[AnimeDetailsCollector][processTags] tagsReference size: ${formatBytes(sizeof(tagsReference))}`);
-                logWarn(`[AnimeDetailsCollector][processTags] tagsDetail size: ${formatBytes(sizeof(tagsDetail))}`);
-                logWarn(`[AnimeDetailsCollector][processTags] animeTag size: ${formatBytes(sizeof(animeTag))}`);
+                logVerbose(`[AnimeDetailsCollector][processTags] tagsReference size: ${formatBytes(sizeof(tagsReference))}`);
+                logVerbose(`[AnimeDetailsCollector][processTags] tagsDetail size: ${formatBytes(sizeof(tagsDetail))}`);
+                logVerbose(`[AnimeDetailsCollector][processTags] animeTag size: ${formatBytes(sizeof(animeTag))}`);
             }
         } else {
-            logWarn(`[AnimeDetailsCollector][processTags] No tags to process for AnimeReference id: ${animeDetail.id}`);
+            logVerbose(`[AnimeDetailsCollector][processTags] No tags to process for AnimeReference id: ${animeDetail.id}`);
         }
     }
 }

@@ -6,7 +6,11 @@ import fs from "fs";
 import { TransformableInfo } from "logform"; // Importa TransformableInfo da logform
 
 // Crea la cartella dei log se non esiste
-const logDirectory = path.join(process.cwd(), "logs");
+
+const logDirectory = process.env.NODE_ENV === "development"
+    ? path.resolve(__dirname, "..", "..", "logs")
+    : path.resolve(process.cwd(), "logs");
+
 if (!fs.existsSync(logDirectory)) {
     fs.mkdirSync(logDirectory, { recursive: true });
 }
