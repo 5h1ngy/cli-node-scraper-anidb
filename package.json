@@ -1,6 +1,6 @@
 {
   "name": "cli-node-scraper-anidb",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A CLI scraper for AniDB to extract anime references, details, and assets using Node.js and TypeScript.",
   "license": "MIT",
   "keywords": [
