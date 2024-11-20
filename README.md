@@ -1,5 +1,7 @@
 # **CLI Node Scraper for AniDB**
 
+![logo](./assets/logo.png) <!-- Placeholder: Replace with actual image -->
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node.js](https://img.shields.io/badge/node-%3E%3D20.18.0-green)
 ![Yarn](https://img.shields.io/badge/yarn-%3E%3D4.5.1-green)
