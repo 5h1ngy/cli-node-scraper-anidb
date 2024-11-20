@@ -2,16 +2,15 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node.js](https://img.shields.io/badge/node-%3E%3D20.18.0-green)
-![Build Status](https://github.com/your-username/cli-node-scraper-anidb/actions/workflows/ci.yml/badge.svg)
-![Contributions](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
+![Yarn](https://img.shields.io/badge/yarn-%3E%3D4.5.1-green)
 
-> **Version**: `1.0.0`
+> **Version**: `1.0.1`
 
 A powerful CLI scraper for AniDB, built with Node.js and TypeScript, designed to extract references and detailed information about anime. This project is designed to be scalable, configurable, and easy to integrate.
 
 ---
 
-![AniDB Scraper Demo](https://via.placeholder.com/800x400?text=Demo+Image) <!-- Placeholder: Replace with actual image -->
+![AniDB Scraper Demo](./assets/thumbnail.png) <!-- Placeholder: Replace with actual image -->
 
 ---
 
@@ -37,11 +36,11 @@ Make sure you have the following installed:
 - **Node.js**: `>= 20.18.0`
 - **Yarn**: `>= 1.x`
 
-### Steps
+### Installation with Yarn
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/cli-node-scraper-anidb.git
+   git clone https://github.com/5h1ngy/cli-node-scraper-anidb.git
    cd cli-node-scraper-anidb
    ```
 
@@ -60,6 +59,20 @@ Make sure you have the following installed:
    LOG_DEFAULT_LEVEL=info
    ```
 
+### Installation with npm for Global Use
+
+You can install the scraper globally using `npm`:
+
+1. **Install globally**:
+   ```bash
+   npm install -g .
+   ```
+
+2. **Run the scraper**:
+   ```bash
+   anime-scraper
+   ```
+
 ---
 
 ## **Usage**
@@ -76,6 +89,19 @@ Build and run the scraper in production mode:
 yarn build
 yarn start
 ```
+
+### Global CLI Command
+After global installation, you can use the `anime-scraper` command:
+```bash
+anime-scraper
+```
+
+By default, the scraper will:
+- Connect to the AniDB database.
+- Retrieve anime references and details.
+- Save the data in a local SQLite database.
+
+You can customize the behavior using `.env` configuration.
 
 ---
 
@@ -131,24 +157,8 @@ The project uses **SQLite** via Sequelize for data management.
 ## **Requirements**
 
 - **Node.js**: `>= 20.18.0`
-- **Yarn**: `>= 1.x`
+- **Yarn**: `>= 4.5.1`
 - **SQLite**: Installed on your system.
-
----
-
-## **Contributing**
-
-Contributions are welcome! Please follow these steps:
-
-1. **Fork the repository**.
-2. **Create a new branch**:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. **Implement your changes**.
-4. **Submit a pull request**.
-
-![Contributions](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
 
 ---
 
@@ -172,7 +182,7 @@ AniDB is the original source of the data. For more information about AniDB, visi
 
 ## **Author**
 
-Project created by [5h1ngy].
+Project created by 5h1ngy.
 
 ---
 

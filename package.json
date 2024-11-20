@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/cli-node-scraper-anidb.git"
+    "url": "https://github.com/5h1ngy/cli-node-scraper-anidb.git"
   },
   "engines": {
     "node": ">=20.18.0",
