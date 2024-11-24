@@ -28,9 +28,11 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only --notify false -r tsconfig-paths/register src/index.ts",
-    "build": "cross-env NODE_ENV=production tsc && tsc-alias && typedoc",
+    "build": "cross-env NODE_ENV=production tsc && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/index.js",
-    "clean": "rm -rfdv node_modules dist docs data logs"
+    "docs": "typedoc",
+    "clean": "rm -rfdv node_modules dist docs data logs",
+    "update": "yarn up '*@latest'"
   },
   "dependencies": {
     "@faker-js/faker": "^9.2.0",
