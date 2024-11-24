@@ -5,6 +5,8 @@ import getFakeClient from "@/handlers/getFakeClient";
 import appErrors, { isError } from "@/handlers/appErrors";
 import extractNumbers from "@/utils/extractNumbers";
 
+const DELAY = 1; // Ritardo prima di effettuare una richiesta
+
 /**
  * Tipo che rappresenta i dettagli di un anime.
  */
@@ -21,11 +23,10 @@ type Anime = {
 
 /**
  * Estrae i dettagli di un anime dalla pagina HTML di AniDB.
- * @param delay - Ritardo (in millisecondi) prima di effettuare la richiesta.
  * @param id - L'ID dell'anime da estrarre.
  * @returns Una Promise che restituisce i dettagli dell'anime come oggetto.
  */
-export default function getAnimeDetail(delay: number, id: string): Promise<Anime> {
+export default function getAnimeDetail(id: string): Promise<Anime> {
     return new Promise((resolve, reject) => {
         setTimeout(async () => {
             try {
@@ -63,10 +64,16 @@ export default function getAnimeDetail(delay: number, id: string): Promise<Anime
                                 break;
                             }
                             case "Tags": {
-                                $(this).find("td span a").each(function () {
-                                    const tagName = $(this).text().trim();
-                                    const tagId = extractNumbers($(this).attr("href") || "") || "";
-                                    if (tagName && tagId) anime.tags.push({ id: tagId, name: tagName });
+                                // Seleziona tutti i tag nell'HTML
+                                $(this).find("td .g_tag").each(function () {
+                                    const tagElement = $(this).find("a");
+                                    const tagName = tagElement.find(".tagname").text().trim(); // Testo del tag
+                                    const tagId = extractNumbers(tagElement.attr("href") || ""); // ID del tag dall'attributo href
+
+                                    // Aggiunge l'oggetto tag solo se entrambi i valori sono presenti
+                                    if (tagName && tagId) {
+                                        anime.tags.push({ id: tagId, name: tagName });
+                                    }
                                 });
                                 break;
                             }
@@ -84,6 +91,6 @@ export default function getAnimeDetail(delay: number, id: string): Promise<Anime
             } catch (error) {
                 reject(error);
             }
-        }, delay);
+        }, DELAY);
     });
 }

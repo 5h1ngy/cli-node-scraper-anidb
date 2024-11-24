@@ -15,9 +15,6 @@ import AnimeTags from "@/models/AnimeTags";
 import getAnimeAsset from "@/services/getAnimeAsset";
 import ProgressManager from "@/handlers/ProgressManager";
 
-// Ritardo tra le richieste
-const REQUEST_DELAY = 2000;
-
 /**
  * Classe che gestisce la raccolta dei dettagli degli anime.
  */
@@ -97,8 +94,8 @@ export default class AnimeDetailsCollector {
     private async processAnimeDetails(animeReference: AnimeReferences): Promise<void> {
         try {
             logVerbose(`[AnimeDetailsCollector][processAnimeDetails] Collecting details for AnimeReference id: ${animeReference.id}`);
-            const { details, tags, image } = await getAnimeDetail(REQUEST_DELAY, animeReference.animeId);
-            const base64 = image.src !== "" ? await getAnimeAsset(REQUEST_DELAY, image.src) : "";
+            const { details, tags, image } = await getAnimeDetail(animeReference.animeId);
+            const base64 = image.src !== "" ? await getAnimeAsset(image.src) : "";
 
             logInfo(`[AnimeDetailsCollector][processAnimeDetails] animeReference.id: ${animeReference.id}`);
 
@@ -134,6 +131,7 @@ export default class AnimeDetailsCollector {
     private async processTags(animeDetail: AnimeDetails, tags: Array<{ id: string; name: string }>): Promise<void> {
         if (tags?.length > 0) {
             for (const tag of tags) {
+                
                 const [tagsReference] = await TagReferences.findOrCreate({
                     where: { tagId: _.toUpper(_.snakeCase(tag.id)) },
                 });

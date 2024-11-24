@@ -5,7 +5,7 @@ import extractNumbers from "@/utils/extractNumbers";
 import appErrors from "@/handlers/appErrors";
 import getFakeClient from "@/handlers/getFakeClient";
 
-const DELAY = 500; // Ritardo prima di effettuare una richiesta
+const DELAY = 1; // Ritardo prima di effettuare una richiesta
 
 /**
  * Crea l'URL della pagina da cui ottenere i riferimenti.

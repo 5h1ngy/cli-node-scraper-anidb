@@ -3,13 +3,14 @@ import axios from "axios";
 import { logError } from "@/shared/logger";
 import appErrors, { isError } from "@/handlers/appErrors";
 
+const DELAY = 1; // Ritardo prima di effettuare una richiesta
+
 /**
  * Scarica un'immagine da un URL e la converte in formato base64.
- * @param delay - Ritardo prima di effettuare la richiesta.
  * @param imageUrl - L'URL dell'immagine da scaricare.
  * @returns Una Promise che restituisce una stringa contenente l'immagine in formato base64.
  */
-export default function getAnimeAsset(delay: number, imageUrl: string): Promise<string> {
+export default function getAnimeAsset(imageUrl: string): Promise<string> {
     return new Promise((resolve, reject) => {
         setTimeout(async () => {
             try {
@@ -27,6 +28,6 @@ export default function getAnimeAsset(delay: number, imageUrl: string): Promise<
                 logError(`[getAnimeAsset] Failed to fetch asset from URL: ${imageUrl}, Error: ${error}`);
                 reject(error);
             }
-        }, delay);
+        }, DELAY);
     });
 }

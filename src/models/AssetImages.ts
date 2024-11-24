@@ -5,6 +5,7 @@ import {
     DataType,
     HasOne,
 } from "sequelize-typescript";
+import AnimeDetails from "./AnimeDetails";
 
 /**
  * Modello per rappresentare le immagini associate agli anime.
@@ -27,8 +28,8 @@ export default class AssetImages extends Model {
     /**
      * Riferimento all'asset associato.
      */
-    @HasOne(() => AssetImages, { sourceKey: "id", foreignKey: "assetReference", as: "detail" })
-    detail!: AssetImages;
+    @HasOne(() => AnimeDetails, { sourceKey: "id", foreignKey: "assetReference", as: "detail" })
+    detail!: AnimeDetails;
 
     /**
      * URL di origine dell'immagine o il suo identificativo.
