@@ -1,8 +1,10 @@
 import { logInfo, logError, logWarn } from "@/shared/logger";
 import { APP_ERRORS } from "@/handlers/appErrors";
-import getAnimeReferences from "@/services/getAnimeReferences";
-import AnimeReferences from "@/models/AnimeReferences";
 import ProgressManager from "@/handlers/ProgressManager";
+
+import AnimeReferences from "@/models/AnimeReferences";
+
+import ReferenceService from "@/services/ReferenceService";
 
 /**
  * Classe per la raccolta di riferimenti agli anime.
@@ -10,10 +12,12 @@ import ProgressManager from "@/handlers/ProgressManager";
 export default class AnimeReferencesCollector {
     private readonly PAGES_MAX: number; // Numero massimo di pagine da analizzare
     private progressManager: ProgressManager; // Gestisce il progresso dell'operazione
+    private referenceService: ReferenceService; // Gestisce il progresso dell'operazione
     public complete: boolean = false; // Indica se il processo è completato
 
     constructor(progressManager: ProgressManager) {
         this.progressManager = progressManager;
+        this.referenceService = new ReferenceService(0);
         this.PAGES_MAX = 1000; // Configurazione predefinita per il numero massimo di pagine
     }
 
@@ -37,7 +41,7 @@ export default class AnimeReferencesCollector {
         for (let page = pageToStart; page <= this.PAGES_MAX; page++) {
             try {
                 logInfo(`[AnimeReferencesCollector][run] Fetching anime IDs from page: ${page}`);
-                const ids = await getAnimeReferences(page);
+                const ids = await this.referenceService.get(page);
                 logInfo(`[AnimeReferencesCollector][run] Successfully fetched IDs: ${ids.join(", ")}`);
 
                 // Salva ogni ID nel database

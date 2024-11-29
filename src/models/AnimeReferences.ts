@@ -1,11 +1,4 @@
-import {
-    Table,
-    Column,
-    Model,
-    DataType,
-    PrimaryKey,
-    HasOne,
-} from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, HasOne } from "sequelize-typescript";
 import AnimeDetails from "./AnimeDetails";
 
 /**

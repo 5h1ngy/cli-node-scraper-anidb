@@ -1,16 +1,9 @@
-import {
-    Table,
-    Model,
-    Column,
-    DataType,
-    ForeignKey,
-    BelongsTo,
-    BelongsToMany,
-} from "sequelize-typescript";
+import { Table, Model, Column, DataType, ForeignKey, BelongsTo, BelongsToMany } from "sequelize-typescript";
 import AnimeReferences from "./AnimeReferences";
 import AssetImages from "./AssetImages";
 import TagDetails from "./TagDetails";
 import AnimeTags from "./AnimeTags";
+import AnimeDescriptions from "./AnimeDescriptions";
 
 /**
  * Modello per rappresentare i dettagli di un anime.
@@ -98,6 +91,22 @@ export default class AnimeDetails extends Model {
         allowNull: true,
     })
     season!: string | null;
+
+    /**
+     * Riferimento all'immagine associata all'anime.
+     */
+    @ForeignKey(() => AnimeDescriptions)
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+    })
+    descriptionReference!: string;
+
+    /**
+     * Collegamento all'immagine associata.
+     */
+    @BelongsTo(() => AnimeDescriptions, { foreignKey: "descriptionReference", targetKey: "id", as: "description" })
+    description!: AnimeDescriptions;
 
     /**
      * Collegamento ai tag associati all'anime.

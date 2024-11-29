@@ -5,24 +5,31 @@ import sizeof from "object-sizeof";
 import { logInfo, logError, logVerbose, logWarn } from "@/shared/logger";
 import formatBytes from "@/utils/formatBytes";
 import { APP_ERRORS } from "@/handlers/appErrors";
+import ProgressManager from "@/handlers/ProgressManager";
+
 import AnimeReferences from "@/models/AnimeReferences";
-import getAnimeDetail from "@/services/getAnimeDetail";
 import AssetImages from "@/models/AssetImages";
+import AnimeDescriptions from "@/models/AnimeDescriptions";
 import AnimeDetails from "@/models/AnimeDetails";
 import TagDetails from "@/models/TagDetails";
 import TagReferences from "@/models/TagReferences";
 import AnimeTags from "@/models/AnimeTags";
-import getAnimeAsset from "@/services/getAnimeAsset";
-import ProgressManager from "@/handlers/ProgressManager";
+
+import DetailService from "@/services/DetailService";
+import AssetService from "@/services/AssetService";
 
 /**
  * Classe che gestisce la raccolta dei dettagli degli anime.
  */
 export default class AnimeDetailsCollector {
     private progressManager: ProgressManager;
+    private detailService: DetailService;
+    private assetService: AssetService;
 
     constructor(progressManager: ProgressManager) {
         this.progressManager = progressManager;
+        this.detailService = new DetailService(0);
+        this.assetService = new AssetService(0);
     }
 
     /**
@@ -94,8 +101,8 @@ export default class AnimeDetailsCollector {
     private async processAnimeDetails(animeReference: AnimeReferences): Promise<void> {
         try {
             logVerbose(`[AnimeDetailsCollector][processAnimeDetails] Collecting details for AnimeReference id: ${animeReference.id}`);
-            const { details, tags, image } = await getAnimeDetail(animeReference.animeId);
-            const base64 = image.src !== "" ? await getAnimeAsset(image.src) : "";
+            const { details, tags, image, description } = await this.detailService.get(animeReference.animeId);
+            const base64 = image.src !== "" ? await this.assetService.get(image.src) : null;
 
             logInfo(`[AnimeDetailsCollector][processAnimeDetails] animeReference.id: ${animeReference.id}`);
 
@@ -105,6 +112,12 @@ export default class AnimeDetailsCollector {
 
             logInfo(`[AnimeDetailsCollector][processAnimeDetails] assetImage.origin: ${assetImage.origin}`);
 
+            const [animeDescription] = await AnimeDescriptions.findOrCreate({
+                where: { raw: description },
+            });
+
+            logInfo(`[AnimeDetailsCollector][processAnimeDetails] animeDescription.raw: ${animeDescription.raw}`);
+
             const [animeDetail] = await AnimeDetails.findOrCreate({
                 where: { animeReference: animeReference.id },
                 defaults: {
@@ -113,6 +126,7 @@ export default class AnimeDetailsCollector {
                     year: details.year || null,
                     season: details.season || null,
                     assetReference: assetImage.id || null,
+                    descriptionReference: animeDescription.id || null,
                 },
             });
             await this.processTags(animeDetail, tags);
@@ -131,7 +145,7 @@ export default class AnimeDetailsCollector {
     private async processTags(animeDetail: AnimeDetails, tags: Array<{ id: string; name: string }>): Promise<void> {
         if (tags?.length > 0) {
             for (const tag of tags) {
-                
+
                 const [tagsReference] = await TagReferences.findOrCreate({
                     where: { tagId: _.toUpper(_.snakeCase(tag.id)) },
                 });

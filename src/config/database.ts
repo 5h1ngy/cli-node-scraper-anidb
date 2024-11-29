@@ -2,6 +2,7 @@ import path from 'path';
 import { Sequelize } from 'sequelize-typescript';
 
 import AnimeDetails from "@/models/AnimeDetails";
+import AnimeDescriptions from "@/models/AnimeDescriptions";
 import AnimeReferences from "@/models/AnimeReferences";
 import TagDetails from "@/models/TagDetails";
 import TagReferences from "@/models/TagReferences";
@@ -18,7 +19,7 @@ const sequelize = new Sequelize({
         ? path.resolve(__dirname, "..", "..", "data", process.env.STORAGE_FILE || 'db_dump.db')
         : path.resolve(process.cwd(), "data", process.env.STORAGE_FILE || 'db_dump.db'),
     logging: process.env.LOGGING_DB === "true" ? logVerbose : false || false,
-    models: [AnimeDetails, AnimeReferences, TagDetails, TagReferences, AssetImages, AnimeTags],
+    models: [AnimeDetails, AnimeDescriptions, AnimeReferences, TagDetails, TagReferences, AssetImages, AnimeTags],
 });
 
 /**
