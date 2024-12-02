@@ -12,11 +12,7 @@
 
 A powerful CLI scraper for AniDB, built with Node.js and TypeScript, designed to extract references and detailed information about anime. This project is designed to be scalable, configurable, and easy to integrate.
 
----
-
 ![AniDB Scraper Demo](./assets/thumbnail.png) <!-- Placeholder: Replace with actual image -->
-
----
 
 ## **Features**
 
@@ -29,8 +25,6 @@ A powerful CLI scraper for AniDB, built with Node.js and TypeScript, designed to
 ✅ Environment configuration via `.env` file.  
 ✅ SQLite database with Sequelize and TypeScript.  
 ✅ Development tools like ESLint, Typedoc, and TypeScript.
-
----
 
 ## **Installation**
 
@@ -77,8 +71,6 @@ You can install the scraper globally using `npm`:
    anime-scraper
    ```
 
----
-
 ## **Usage**
 
 ### Development Mode
@@ -107,8 +99,6 @@ By default, the scraper will:
 
 You can customize the behavior using `.env` configuration.
 
----
-
 ## **Project Structure**
 
 ```
@@ -122,8 +112,6 @@ src/
 ├── index.ts        # Main entry point
 ```
 
----
-
 ## **Logging**
 
 Logging is managed via [Winston](https://github.com/winstonjs/winston), with support for daily file rotation. Logs are saved in the `logs/` directory.
@@ -135,8 +123,6 @@ Logging is managed via [Winston](https://github.com/winstonjs/winston), with sup
 [2024-11-19 12:35:00] info: Processing anime ID 12345.
 ```
 
----
-
 ## **Documentation**
 
 Documentation is automatically generated using **Typedoc**. You can generate it by running:
@@ -147,8 +133,6 @@ yarn build
 
 The documentation will be generated in the `docs/` directory.
 
----
-
 ## **Database**
 
 The project uses **SQLite** via Sequelize for data management.
@@ -156,15 +140,11 @@ The project uses **SQLite** via Sequelize for data management.
 - **Database Path**: Configurable via the `STORAGE_FILE` environment variable.
 - **Synchronization**: Automatically synchronized at startup.
 
----
-
 ## **Requirements**
 
 - **Node.js**: `>= 20.18.0`
 - **Yarn**: `>= 4.5.1`
 - **SQLite**: Installed on your system.
-
----
 
 ## **License and Data Attribution**
 
@@ -182,13 +162,9 @@ For full details, visit the official license page: [https://creativecommons.org/
 
 AniDB is the original source of the data. For more information about AniDB, visit [https://anidb.net](https://anidb.net).
 
----
-
 ## **Author**
 
 Project created by 5h1ngy.
-
----
 
 ## **License**
 
