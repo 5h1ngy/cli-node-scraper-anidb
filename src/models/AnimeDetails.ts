@@ -57,6 +57,22 @@ export default class AnimeDetails extends Model {
     asset!: AssetImages;
 
     /**
+     * Riferimento all'immagine associata all'anime.
+     */
+    @ForeignKey(() => AnimeDescriptions)
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+    })
+    descriptionReference!: string;
+
+    /**
+     * Collegamento all'immagine associata.
+     */
+    @BelongsTo(() => AnimeDescriptions, { foreignKey: "descriptionReference", targetKey: "id", as: "description" })
+    description!: AnimeDescriptions;
+
+    /**
      * Titolo dell'anime.
      */
     @Column({
@@ -75,13 +91,13 @@ export default class AnimeDetails extends Model {
     type!: string | null;
 
     /**
-     * Anno di rilascio dell'anime.
+     * Tipo di anime (es. TV, Movie, OVA).
      */
     @Column({
         type: DataType.STRING,
         allowNull: true,
     })
-    year!: string | null;
+    episodes!: string | null;
 
     /**
      * Stagione di rilascio dell'anime.
@@ -93,20 +109,22 @@ export default class AnimeDetails extends Model {
     season!: string | null;
 
     /**
-     * Riferimento all'immagine associata all'anime.
+     * Anno di rilascio dell'anime.
      */
-    @ForeignKey(() => AnimeDescriptions)
     @Column({
         type: DataType.STRING,
         allowNull: true,
     })
-    descriptionReference!: string;
+    year_start!: string | null;
 
     /**
-     * Collegamento all'immagine associata.
+     * Anno di rilascio dell'anime.
      */
-    @BelongsTo(() => AnimeDescriptions, { foreignKey: "descriptionReference", targetKey: "id", as: "description" })
-    description!: AnimeDescriptions;
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+    })
+    year_end!: string | null;
 
     /**
      * Collegamento ai tag associati all'anime.

@@ -102,12 +102,11 @@ export default class AnimeDetailsCollector {
         try {
             logVerbose(`[AnimeDetailsCollector][processAnimeDetails] Collecting details for AnimeReference id: ${animeReference.id}`);
             const { details, tags, image, description } = await this.detailService.get(animeReference.animeId);
-            const base64 = image.src !== "" ? await this.assetService.get(image.src) : null;
 
             logInfo(`[AnimeDetailsCollector][processAnimeDetails] animeReference.id: ${animeReference.id}`);
 
             const [assetImage] = await AssetImages.findOrCreate({
-                where: { thumbnail: base64, origin: image.src },
+                where: { thumbnail: await this.assetService.get(image.src), origin: image.src },
             });
 
             logInfo(`[AnimeDetailsCollector][processAnimeDetails] assetImage.origin: ${assetImage.origin}`);
@@ -123,8 +122,10 @@ export default class AnimeDetailsCollector {
                 defaults: {
                     title: details.title || null,
                     type: details.type || null,
-                    year: details.year || null,
+                    episodes: details.episodes || null,
                     season: details.season || null,
+                    year_start: details.year.start || null,
+                    year_end: details.year.end || null,
                     assetReference: assetImage.id || null,
                     descriptionReference: animeDescription.id || null,
                 },

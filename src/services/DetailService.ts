@@ -4,6 +4,7 @@ import * as cheerio from "cheerio";
 import getFakeClient from "@/handlers/getFakeClient";
 import appErrors, { isError } from "@/handlers/appErrors";
 import extractNumbers from "@/utils/extractNumbers";
+import _ from "lodash";
 
 const DELAY = 1; // Ritardo prima di effettuare una richiesta
 
@@ -12,19 +13,25 @@ const DELAY = 1; // Ritardo prima di effettuare una richiesta
  */
 type Anime = {
     details: {
-        title?: string;
-        type?: string;
-        year?: string;
-        season?: string;
+        title: string | null;
+        type: string | null;
+        episodes: number | null;
+        season: string | null;
+        year: {
+            start: string | null;
+            end: string | null;
+        };
     };
-    tags: { id: string; name: string }[];
-    image: { src: string };
-    description: string | null; // Campo per la descrizione
+    tags: Array<{
+        id: string;
+        name: string;
+    }>;
+    image: {
+        src: string | null;
+    };
+    description: string | null;
 };
 
-/**
- * Classe per gestire l'estrazione dei dettagli di un anime.
- */
 export default class DetailService {
     private readonly delay: number;
 
@@ -33,76 +40,139 @@ export default class DetailService {
     }
 
     /**
-     * Estrae la descrizione dall'HTML, se presente.
-     * @param $ - L'oggetto cheerio che rappresenta la pagina HTML.
-     * @returns La descrizione come stringa o una stringa vuota se non trovata.
+     * Helper per estrarre e normalizzare il testo.
+     */
+    private getText(element: cheerio.Cheerio<any>, selector: string): string | null {
+        return element.find(selector).text().trim() || null;
+    }
+
+    /**
+     * Estrae la descrizione dall'HTML.
      */
     private extractDescription($: cheerio.CheerioAPI): string | null {
-        const descriptionElement = $(".g_bubble.g_section.desc[itemprop='description']");
-        if (descriptionElement.length > 0) {
-            return descriptionElement.html()?.trim() || "";
-        }
-        return null;
+        return $(".g_bubble.g_section.desc[itemprop='description']").html()?.trim() || null;
+    }
+
+    /**
+     * Analizza e restituisce il tipo di contenuto e il numero di episodi.
+     */
+    private extractType(input: string): { type: string | null; episodes: number | null } {
+        const typeRegex = /^(.*?)(?=,|$)/;
+        const episodesRegex = /(\d+|\bunknown\b) episodes?/i;
+
+        const type = input.match(typeRegex)?.[0]?.trim() || null;
+        const episodesMatch = input.match(episodesRegex);
+
+        const episodes = episodesMatch
+            ? episodesMatch[1].toLowerCase() === "unknown"
+                ? null
+                : parseInt(episodesMatch[1], 10)
+            : 1;
+
+        return { type, episodes };
+    }
+
+    /**
+     * Estrae solo l'anno (ultimi numeri) da una stringa.
+     * Se l'anno contiene punti interrogativi, restituisce `null`.
+     */
+    private extractYear(element: cheerio.Cheerio<any>): { start: string | null; end: string | null } {
+        const valueCell = element.find("td.value");
+
+        // Helper per prendere gli ultimi numeri e verificare se contengono un punto interrogativo
+        const extractValidYear = (dateString: string | null): string | null => {
+            if (!dateString) return null; // Se la stringa è nulla, restituisci null
+            const yearMatch = dateString.match(/(\d{4}|\?{4})$/); // Cerca solo gli ultimi 4 numeri o "????"
+            if (!yearMatch) return null; // Nessun match, restituisci null
+            return yearMatch[0].includes("?") ? null : yearMatch[0]; // Se contiene "?", restituisci null
+        };
+
+        // Estrai il valore grezzo da startDate e endDate
+        const startDateRaw = this.getText(valueCell, "span[itemprop='startDate'], span[itemprop='datePublished']");
+        const endDateRaw = this.getText(valueCell, "span[itemprop='endDate']");
+
+        // Applica l'helper per validare l'anno
+        const startYear = extractValidYear(startDateRaw);
+        const endYear = extractValidYear(endDateRaw);
+
+        return { start: startYear, end: endYear };
+    }
+
+    /**
+     * Estrae la stagione da una stringa.
+     * @param input - La stringa contenente stagione e anno.
+     * @returns La stagione estratta o `null` se non valida.
+     */
+    private extractSeason(input: string): string | null {
+        // Espressione regolare per identificare le stagioni valide
+        const seasonRegex = /^(Winter|Spring|Summer|Autumn)/i;
+
+        // Esegui il match sulla stringa
+        const match = input.match(seasonRegex);
+
+        // Restituisci la stagione se trovata, altrimenti `null`
+        return match ? _.toUpper(match[0]) : null;
     }
 
     /**
      * Estrae i dettagli principali di un anime.
-     * @param $ - L'oggetto cheerio che rappresenta la pagina HTML.
-     * @returns Un oggetto Anime con i dettagli principali.
      */
-    private extractDetails($: cheerio.CheerioAPI): Anime['details'] {
-        const details: Anime['details'] = {};
+    private extractDetails($: cheerio.CheerioAPI): Anime["details"] {
+        const details: Anime["details"] = {
+            title: null,
+            type: null,
+            episodes: null,
+            season: null,
+            year: {
+                start: null,
+                end: null,
+            },
+        };
 
-        $(".data #tabbed_pane #tab_1_pane .g_definitionlist table tbody tr").each(function () {
-            const field = $(this).find("th").text().trim();
+        const fieldMap: Record<string, (element: cheerio.Cheerio<any>) => void> = {
+            "Main Title": (element) => {
+                details.title = this.getText(element, "td span") || null;
+            },
+            Type: (element) => {
+                const typeText = this.getText(element, "td");
+                if (typeText) {
+                    const { type, episodes } = this.extractType(typeText);
+                    details.type = type;
+                    details.episodes = episodes;
+                }
+            },
+            Year: (element) => {
+                details.year = this.extractYear(element);
+            },
+            Season: (element) => {
+                const season = this.getText(element, "td a") || null;
+                if (season) {
+                    details.season = this.extractSeason(season);
+                }
+            },
+        };
 
-            switch (field) {
-                case "Main Title": {
-                    const title = $(this).find("td span").text().trim();
-                    if (title) details.title = title;
-                    break;
-                }
-                case "Type": {
-                    const type = $(this).find("td").text().trim();
-                    if (type) details.type = type;
-                    break;
-                }
-                case "Year": {
-                    const year = $(this).find("td span").text().trim();
-                    if (year) details.year = year;
-                    break;
-                }
-                case "Season": {
-                    const season = $(this).find("td a").text().trim();
-                    if (season) details.season = season;
-                    break;
-                }
-            }
+        $(".data #tabbed_pane #tab_1_pane .g_definitionlist table tbody tr").each((_, element) => {
+            const field = this.getText($(element), "th");
+            if (field && fieldMap[field]) fieldMap[field]($(element));
         });
 
         return details;
     }
 
     /**
-     * Estrae i tag di un anime dalla pagina HTML.
-     * @param $ - L'oggetto cheerio che rappresenta la pagina HTML.
-     * @returns Un array di tag con ID e nome.
+     * Estrae i tag di un anime.
      */
     private extractTags($: cheerio.CheerioAPI): { id: string; name: string }[] {
         const tags: { id: string; name: string }[] = [];
 
-        $(".data #tabbed_pane #tab_1_pane .g_definitionlist table tbody tr").each(function () {
-            const field = $(this).find("th").text().trim();
-
+        $(".data #tabbed_pane #tab_1_pane .g_definitionlist table tbody tr").each((_, element) => {
+            const field = this.getText($(element), "th");
             if (field === "Tags") {
-                $(this).find("td .g_tag").each(function () {
-                    const tagElement = $(this).find("a");
-                    const tagName = tagElement.find(".tagname").text().trim();
-                    const tagId = extractNumbers(tagElement.attr("href") || "");
-
-                    if (tagName && tagId) {
-                        tags.push({ id: tagId, name: tagName });
-                    }
+                $(element).find("td .g_tag").each((_, tagElement) => {
+                    const tagName = this.getText($(tagElement), ".tagname");
+                    const tagId = extractNumbers($(tagElement).find("a").attr("href") || "");
+                    if (tagName && tagId) tags.push({ id: tagId, name: tagName });
                 });
             }
         });
@@ -111,19 +181,14 @@ export default class DetailService {
     }
 
     /**
-     * Estrae l'immagine di un anime dalla pagina HTML.
-     * @param $ - L'oggetto cheerio che rappresenta la pagina HTML.
-     * @returns L'oggetto immagine con l'URL.
+     * Estrae l'immagine di un anime.
      */
     private extractImage($: cheerio.CheerioAPI): { src: string } {
-        const imgSrc = $("picture img").attr("src") || "";
-        return { src: imgSrc };
+        return { src: $("picture img").attr("src") || "" };
     }
 
     /**
      * Estrae i dettagli di un anime dalla pagina HTML di AniDB.
-     * @param id - L'ID dell'anime da estrarre.
-     * @returns Una Promise che restituisce i dettagli dell'anime come oggetto.
      */
     public async get(id: string): Promise<Anime> {
         return new Promise((resolve, reject) => {
@@ -135,14 +200,12 @@ export default class DetailService {
 
                     if (!isError(parsed)) {
                         const $ = cheerio.load(<string>parsed);
-
                         const anime: Anime = {
                             details: this.extractDetails($),
                             tags: this.extractTags($),
                             image: this.extractImage($),
                             description: this.extractDescription($),
                         };
-
                         resolve(anime);
                     } else {
                         reject(parsed);

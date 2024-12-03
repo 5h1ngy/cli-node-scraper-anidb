@@ -20,19 +20,23 @@ export default class AssetService {
      * @param imageUrl - L'URL dell'immagine da scaricare.
      * @returns Una Promise che restituisce una stringa contenente l'immagine in formato base64.
      */
-    public async get(imageUrl: string): Promise<string> {
+    public async get(imageUrl: string | null): Promise<string | null> {
         return new Promise((resolve, reject) => {
             setTimeout(async () => {
                 try {
-                    const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
-                    const parsed = await appErrors(response.data);
+                    if (imageUrl) {
+                        const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
+                        const parsed = await appErrors(response.data);
 
-                    if (!isError(parsed)) {
-                        const base64Image = Buffer.from(parsed, "binary").toString("base64");
-                        const contentType = response.headers["content-type"];
-                        resolve(`data:${contentType};base64,${base64Image}`);
+                        if (!isError(parsed)) {
+                            const base64Image = Buffer.from(parsed, "binary").toString("base64");
+                            const contentType = response.headers["content-type"];
+                            resolve(`data:${contentType};base64,${base64Image}`);
+                        } else {
+                            reject(parsed);
+                        }
                     } else {
-                        reject(parsed);
+                        resolve(null);
                     }
                 } catch (error) {
                     logError(`[AnimeAssetService] Failed to fetch asset from URL: ${imageUrl}, Error: ${error}`);
