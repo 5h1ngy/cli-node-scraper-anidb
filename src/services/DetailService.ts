@@ -18,8 +18,8 @@ type Anime = {
         episodes: number | null;
         season: string | null;
         year: {
-            start: string | null;
-            end: string | null;
+            start: number | null;
+            end: number | null;
         };
     };
     tags: Array<{
@@ -76,15 +76,15 @@ export default class DetailService {
      * Estrae solo l'anno (ultimi numeri) da una stringa.
      * Se l'anno contiene punti interrogativi, restituisce `null`.
      */
-    private extractYear(element: cheerio.Cheerio<any>): { start: string | null; end: string | null } {
+    private extractYear(element: cheerio.Cheerio<any>): { start: number | null; end: number | null } {
         const valueCell = element.find("td.value");
 
         // Helper per prendere gli ultimi numeri e verificare se contengono un punto interrogativo
-        const extractValidYear = (dateString: string | null): string | null => {
+        const extractValidYear = (dateString: string | null): number | null => {
             if (!dateString) return null; // Se la stringa è nulla, restituisci null
             const yearMatch = dateString.match(/(\d{4}|\?{4})$/); // Cerca solo gli ultimi 4 numeri o "????"
             if (!yearMatch) return null; // Nessun match, restituisci null
-            return yearMatch[0].includes("?") ? null : yearMatch[0]; // Se contiene "?", restituisci null
+            return yearMatch[0].includes("?") ? null : parseInt(yearMatch[0]); // Se contiene "?", restituisci null
         };
 
         // Estrai il valore grezzo da startDate e endDate

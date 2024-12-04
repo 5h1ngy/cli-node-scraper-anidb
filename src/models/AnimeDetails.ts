@@ -94,10 +94,10 @@ export default class AnimeDetails extends Model {
      * Tipo di anime (es. TV, Movie, OVA).
      */
     @Column({
-        type: DataType.STRING,
+        type: DataType.NUMBER,
         allowNull: true,
     })
-    episodes!: string | null;
+    episodes!: number | null;
 
     /**
      * Stagione di rilascio dell'anime.
@@ -112,19 +112,19 @@ export default class AnimeDetails extends Model {
      * Anno di rilascio dell'anime.
      */
     @Column({
-        type: DataType.STRING,
+        type: DataType.NUMBER,
         allowNull: true,
     })
-    year_start!: string | null;
+    year_start!: number | null;
 
     /**
      * Anno di rilascio dell'anime.
      */
     @Column({
-        type: DataType.STRING,
+        type: DataType.NUMBER,
         allowNull: true,
     })
-    year_end!: string | null;
+    year_end!: number | null;
 
     /**
      * Collegamento ai tag associati all'anime.
