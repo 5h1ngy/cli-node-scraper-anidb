@@ -32,7 +32,7 @@
     "build": "cross-env NODE_ENV=production tsc && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "docs": "typedoc",
-    "clean": "rm -rfdv node_modules dist docs data logs",
+    "clean": "rm -rfdv node_modules dist docs data logs .yarn-cache",
     "update": "yarn up '*@latest'"
   },
   "dependencies": {
