@@ -3,4 +3,4 @@ dist
 docs
 data
 logs
-.yarn
+.yarn/
